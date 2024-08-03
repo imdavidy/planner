@@ -5,6 +5,22 @@
   text-align: center;
 }
 
+.top-nav {
+  border-bottom: 1px solid;
+  display: block;
+  position: sticky;
+  top: 0;
+}
+
+.top-nav ul{
+  list-style-type: none;
+}
+
+.main-body {
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: auto;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -16,6 +32,17 @@
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+input {
+  border-radius: 3px;
+  padding: 5px 10px;
+  margin: 5px;
+}
+
+input:read-only {
+  border: darkgray solid 1px;
+  opacity: 1;
 }
 
 @keyframes logo-spin {
