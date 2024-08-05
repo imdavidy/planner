@@ -1,6 +1,4 @@
-import {useState} from 'react';
 import {Routes, Route, NavLink, Outlet} from 'react-router-dom';
-import viteLogo from '/vite.svg'
 import axios from 'axios';
 
 import './App.css'
@@ -17,7 +15,7 @@ function App() {
         <nav>
           <ul>
             <li>
-              <NavLink to="/contacts">Contacts</NavLink>
+              <NavLink className="menu-item" to="/contacts">Contact List</NavLink>
             </li>
             {/*  removes feature
             <li>

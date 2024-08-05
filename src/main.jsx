@@ -1,3 +1,4 @@
+"use strict";
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {RouterProvider, createBrowserRouter} from 'react-router-dom'
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
+      {
+        path: "contacts/:id/history",
+        element: <Contact />,
+      },
       {
         path: "contacts/:id",
         element: <Contact />,
