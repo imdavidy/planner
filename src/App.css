@@ -222,6 +222,19 @@ input:read-only{
   align-content: center;
 }
 
+.history-list ol {
+  display: flex;
+  align-content: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}
+
+.history-list li {
+  font-size: 0.7em;
+  text-align: start;
+}
+
 .layout-container{
   width:  80vw;
   align-items: start;
