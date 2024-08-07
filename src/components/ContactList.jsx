@@ -14,6 +14,8 @@ const ContactList = () => {
 
   const [contacts, setContacts] = useState([])
   const [isLoading, setIsLoading] = useState(true);
+  const [updates, setUpdates] = useState([]);
+  const [listening, setListening] = useState(false);
   const updateContacts = (name, value) => {
     setContacts(current => {
       return ({
@@ -40,9 +42,23 @@ const ContactList = () => {
       .then(res => {
       setContacts(res.data);
       setIsLoading(false);
+      console.log('useeffect: ', res.data, {updates});
     })
       .catch(console.error);
   }, [isLoading]);
+
+  useEffect(() => {
+    if (!listening){
+      const events = new EventSource('http://localhost:3000/api/events');
+
+      events.onmessage = event => {
+        const parsedData = JSON.parse(event.data);
+         console.log({parsedData, contacts});
+        setUpdates(up => up.concat(parsedData));
+      };
+      setListening(true);
+    }
+  },[listening, updates]);
 
   return (
     <div className="layout-container">

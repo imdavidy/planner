@@ -3,12 +3,6 @@
  * @module controllers/contacts
  */
 
-/*!
-* @api {GET} /contacts Get List of Contacts
-* @apiVersion 0.0.1
-* @apiName getList
-*
-*/
 
 const {Contact, EditHistory} = require('../../db/models/index.js')
 // temp sample data
@@ -28,6 +22,12 @@ const create = async (req, res, next) => {
 
 }
 
+/*!
+* @api {GET} /contacts Get List of Contacts
+* @apiVersion 0.0.1
+* @apiName getList
+*
+*/
 const getList = async (req, res, next) => {
   Contact.findAll()
     .then(function (contacts) {
