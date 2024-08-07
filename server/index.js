@@ -1,10 +1,12 @@
-import express from 'express';
-import bodyParser from 'body-parser'
-import morgan from 'morgan';
-import cors from 'cors';
+'use strict';
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const cors = require('cors');
 const app = express();
 
-import {router} from './routes/index.js';
+const router = require('./routes/index.js');
 
 app.use(bodyParser.json());
 app.use(cors());

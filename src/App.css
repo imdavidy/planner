@@ -1,30 +1,87 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /*color-scheme: light dark;*/
+  /*color: rgba(255, 255, 255, 0.87);*/
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #root {
+
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
 
-.top-nav {
-  display: block;
-  position: sticky;
-  top: 0;
+a {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.4);
+  text-decoration: inherit;
+}
+a:hover {
+  color: rgba(0, 0, 0, 0.8);
 }
 
-.top-nav ul{
-  list-style-type: none;
-  padding: 0;
-  color: rgba(240, 240, 240, 1);
+button{
+  border-radius: 8px;
+  border: 1px solid rgba(240, 240, 240, 1);
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+
+  margin: 10px;
+  background-color: rgba(240, 240, 240, 0.5);
+  padding: 0.6em 2em;
+  width: 100%;
+  color: rgba(0,0,0, 0.5);
 }
 
-.main-body {
-  margin-right: auto;
-  margin-left: auto;
-  margin-bottom: auto;
+button:default  {
+  background-color: rgba(240, 240, 240, 0.5);
 }
 
-.form-textbox {
-  position: relative;
+button:hover, button:focus, button:active {
+  color: rgba(255,255,255, 0.75);
+  background-color: rgba(78, 78, 78, 0.75);
+  border: 1px solid rgba(240, 240, 240, 0);
+  transition: 0.3s;
+  font-weight: 500;
+}
+
+button:disabled{
+  cursor: not-allowed;
+  background-color: rgba(240, 240, 240, 0.85);
+}
+
+button:disabled{
+  cursor: not-allowed;
+  background-color: rgba(240, 240, 240, 0.85);
+}
+
+button:disabled span{
+  -webkit-animation: fadeinout 2s linear forwards infinite;
+  animation: fadeinout 2s linear forwards infinite;
+  opacity: 1;
+}
+
+body{
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: rgba(250, 250, 250, 1);
+
 }
 
 form div:first-child {
@@ -45,6 +102,91 @@ form input {
   margin-bottom: 13px;
   padding: 16px 15px 0;
   text-align: start;
+  width: 100%;
+}
+
+input:read-only {
+  background-color: rgba(0, 0, 0, 0.05);
+  opacity: 1;
+}
+
+input:read-only{
+  outline: none;
+}
+
+*:focus {
+  outline: none;
+}
+
+.contact-detail-container {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin: 5px;
+  max-width: 610px;
+}
+
+.contact-detail-container div{
+  align-items: start;
+}
+
+.contact-form-container{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.contact-list {
+  flex: 2;
+  background-color: rgba(250, 250, 250, 0.7);
+  flex-direction: column;
+  margin: 5px 20px;
+}
+
+.contact-list>ul{
+  display: flex;
+  min-width: 450px;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-content: flex-start;
+  text-align: start;
+}
+
+.contact-list>ul li{
+  flex: 1 1 0;
+  white-space: nowrap;
+  padding: 0.25em ;
+  box-sizing: inherit;
+}
+
+.contact-history {
+  flex: 2;
+  flex-direction: column;
+  margin: 5px 20px;
+}
+
+.delete-icon {
+  position: relative;
+  padding-left: 0.7em;
+  top: 1px;
+  width: 0.8em;
+  height: 0.8em;
+  filter: invert(50%) sepia(70%) saturate(50%) hue-rotate(60deg) brightness(50%) contrast(100%);
+}
+
+.delete-icon:hover {
+  cursor: pointer;
+  filter:invert(55%) sepia(100%) saturate(50) hue-rotate(-45deg) brightness(100%) contrast(86%);
+}
+
+.form-button-container{
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  width: 100%;
+}
+.form-textbox {
+  position: relative;
   width: 100%;
 }
 .form-textbox span {
@@ -72,11 +214,20 @@ form input {
   top: 0.4rem
 }
 
+.history-list {
+  border-radius: 12px;
+  background-color: rgba(250, 250, 250, 0.8);
+  width: 100%;
+  min-height: 10em;
+  align-content: center;
+}
+
 .layout-container{
   width:  80vw;
   align-items: start;
   display: flex;
   flex-direction: row;
+  justify-content: center;
   background-color: rgba(255, 255, 255, 1);
   padding: 50px;
   color: rgb(30, 30, 30, 0.5);
@@ -94,87 +245,32 @@ form input {
   flex-direction: column-reverse;
 }
 
-
-.contact-list {
-  flex: 2;
-  background-color: rgba(250, 250, 250, 0.7);
-  width: 100%;
-  flex-direction: column;
-  margin: 5px 20px;
-}
-
-.contact-list>ul{
-  flex: 1;
-  width: 20%;
-  text-align: start;
-
-}
-
-.contact-item {
-  flex: 1;
-  flex-direction: column;
-  margin: 5px;
-}
-
-.contact-item div{
-  align-items: start;
-}
-.contact-history {
-  flex: 2;
-  flex-direction: column;
-  margin: 5px 20px;
-}
-
-
-.history-list {
-  border-radius: 12px;
-  background-color: rgba(250, 250, 250, 0.8);
-  width: 100%;
-  height: 50%
+.main-body {
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: auto;
 }
 
 .menu-item {
   font-weight: bold;
 }
 
-input:read-only {
-  background-color: rgba(0, 0, 0, 0.05);
-  opacity: 1;
+.top-nav {
+  display: block;
+  position: sticky;
+  top: 0;
 }
 
-input:read-only{
-  outline: none;
+.top-nav ul{
+  list-style-type: none;
+  padding: 0;
+  color: rgba(240, 240, 240, 1);
 }
 
-button{
-  margin: 10px;
-  background-color: rgba(255, 255, 255, 1);
-  padding-right: 20px;
-  padding-left: 20px;
-  color: rgba(0,0,0, 0.5);
+@-webkit-keyframes fadeinout {
+  50% { opacity: 0.2; }
 }
 
-button:default  {
-  background-color: rgba(240, 240, 240, 0.85);
-}
-
-button:hover, button:focus, button:active {
-  color: rgba(255,255,255, 0.75);
-  background-color: rgba(0,0,0, 1);
-  border: none;
-  transition: 0.5s;
-  font-weight: 500;
-}
-
-button:disabled{
-  cursor: not-allowed;
-  background-color: rgba(240, 240, 240, 0.85);
-}
-
-body{
-  background-color: rgba(250, 250, 250, 1);
-}
-
-*:focus {
-  outline: none;
+@keyframes fadeinout {
+  50% { opacity: 0.2; }
 }
