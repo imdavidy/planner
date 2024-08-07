@@ -1,0 +1,12 @@
+{
+  "database": "planner",
+  "host": "localhost",
+  "dialect": "postgres",
+  "logging": false,
+  "port": 5432,
+  "define": {
+    "underscore": true,
+    "freezeTableName": true,
+    "timestamps": true
+  }
+}
