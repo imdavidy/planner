@@ -73,7 +73,6 @@ const Contact = () => {
         }
         setEditing(false)
         setIsProcessing(false)
-        navigate('/contacts/'+res.data.contact.id, {state: contact});
       })
         .catch(err => {
           setIsLoading(false)
@@ -82,7 +81,6 @@ const Contact = () => {
         })
         .finally(()=>{
           setIsProcessing(false)
-          navigate('/contacts/'+curContact.id);
         })
     }
   };
@@ -112,18 +110,24 @@ const Contact = () => {
 /*------------- useEffect -----------------------*/
 
   useEffect(() => {
-
-    axios.get(`/api/contacts/${urlParam}`).then((res) => {
+    const controller = new AbortController();
+    axios.get(`/api/contacts/${urlParam}`, controller.signal).then((res) => {
       setContact(res.data);
       setCurContact(res.data);
+    }).then( () => {
+      if (!isCreate) {
+        axios.get(`/api/contacts/${urlParam}/history`, controller.signal).then(res => {
+          setHistory(res.data)
+        })
+      }
+    }).then(()=> {
+      setIsLoading(false);
     })
+      .catch(console.error);
 
-    // setContact(location.state);
-    // setCurContact(location.state)
-    setIsLoading(false);
-    console.log('location.state: ', location.state)
+
     return () => {
-
+      controller?.abort();
       console.log('cleaning!!!!!!!!! ', {
         contact,
         updates,
@@ -132,33 +136,29 @@ const Contact = () => {
         isCreate,
         editing,
         isLoading,
-        isProcessing})
+        isProcessing,
+        history,
+      })
 
     }
   }, []);
 
-  useEffect(() => {
-    console.log('useEffect[isProcessing]: ', {
-      contact,
-      updates,
-      listening,
-      curContact,
-      isCreate,
-      editing,
-      isLoading,
-      isProcessing})
-    if (!isCreate) {
-      const controller = new AbortController();
-      axios.get(`/api/contacts/${urlParam}/history`, controller.signal).then(res => {
-        setHistory(res.data)
-      })
-        .then(()=> {
-          setIsLoading(false);
-        })
-        .catch(console.error);
-      controller.abort()
-    }
-  }, [isProcessing]);
+  // useEffect(() => {
+  //   let controller;
+  //   if (!isCreate) {
+  //     const controller = new AbortController();
+  //     axios.get(`/api/contacts/${urlParam}/history`, controller.signal).then(res => {
+  //       setHistory(res.data)
+  //     })
+  //       .then(()=> {
+  //         setIsLoading(false);
+  //       })
+  //       .catch(console.error);
+  //   }
+  //   return () => {
+  //     controller?.abort();
+  //   }
+  // }, [isProcessing]);
 
   useEffect(() => {
     let events;
@@ -166,51 +166,40 @@ const Contact = () => {
       events = new EventSource('http://localhost:3000/api/events');
 
       events.onmessage = event => {
-        let recentData;
-        console.log('recieved event: ', event.data); //TODO <--------------------- remove
+        let evData;
         const parsedData = JSON.parse(event.data);
-        if (Array.isArray(parsedData)) recentData = parsedData.pop();
-        if (recentData?.id) {
-          console.log('useEffect.[updates]: ', {updates, contact, curContact, history, recentData})
-          if (recentData.id === history.contact_id) {
-            setHistory(h=> [...h, recentData]);
-            setCurContact({...updates, editHistory: curContact.editHistory});
+        if (Array.isArray(parsedData)) evData = parsedData.pop();
+        if (evData?.id) {
+          setUpdates(evData);
+
+          if (evData.id === contact.id) {
+            setHistory(h => [...h, evData]);
           }
-          setIsLoading(false);
+         // setIsLoading(false);
         }
 
-        setUpdates({...recentData});
+        setUpdates(evData);
       };
       setListening(true);
     }
+
     //return () => events?.close();
   },[listening, updates]);
 
-  useEffect(() => {
-    // let recentData;
-    // if (Array.isArray(updates)){
-    //    recentData = updates.pop();
-    // }
-    // if (recentData?.id) {
-    //   console.log('useEffect.[updates]: ', {updates, contact, curContact})
-    //   if (recentData.id === history.contact_id) {
-    //     setHistory(h=> [...h, recentData]);
-    //     setCurContact({...updates, editHistory: curContact.editHistory});
-    //   }
-    //   setIsLoading(false);
-    // }
-    console.log('[updates]useEffect:', {
-      contact,
-      updates,
-      listening,
-      curContact,
-      isCreate,
-      editing,
-      isLoading,
-      isProcessing,
-    history})
+/*  useEffect(() => {
+
+    console.log('[updates]userEffect: ', {updates, history, contact, curContact})
+
+    if (updates?.id) {
+      if (history.length ? updates.id === history[0].contact_id : updates.id === contact.id) {
+        setHistory(h=> [...h, updates]);
+      }
+      setIsLoading(false);
+    }
 
   }, [updates]);
+  /
+ */
 
   /* ---------------------- end - useEffect-----------------------  */
 
@@ -221,8 +210,8 @@ const Contact = () => {
     {type: 'tel', name: 'phone', label: 'Phone', maxLength: 10, readOnly: !editing && !isCreate, required: true},
   ]
 
-  const formatJSONHistory = (jsonh) => {
-    const history = JSON.parse(jsonh)
+  const formatJSONHistory = (his) => {
+    const history = JSON.parse(his)
     const keyVals = [];
     const targetProps = ['first_name', 'last_name', 'phone', 'email', 'updatedAt'];
     for(const key in history) {
@@ -274,7 +263,7 @@ const Contact = () => {
           <div className="history-list">
             {isLoading && <p>Loading...</p>}
             {!isLoading && <ol>
-              {history?.length ? history.map(c => <li key={c.id}>{formatJSONHistory(c.changes)}</li>) : <p>empty history</p>}
+              {history?.length ? history.map(c => <li key={c.id}>{formatJSONHistory(c?.changes)}</li>) : <p>empty history</p>}
             </ol>}
           </div>
         </div>}
