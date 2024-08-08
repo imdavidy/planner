@@ -14,21 +14,11 @@ const ContactList = () => {
 
   const [contacts, setContacts] = useState([])
   const [isLoading, setIsLoading] = useState(true);
-  const [updates, setUpdates] = useState([]);
-  const [listening, setListening] = useState(false);
-  const updateContacts = (name, value) => {
-    setContacts(current => {
-      return ({
-        ...current,
-        [name]: value,
-      })});
-  };
 
   const onClick = (e, id) => {
     e.preventDefault();
-    console.log({e, id})
     axios.delete(`/api/contacts/${id}`)
-      .then(res=> {
+      .then(res => {
         if (res.status >= 200 && res.status < 400) {
           setIsLoading(true);
           alert('Successfully Removed');
@@ -40,25 +30,11 @@ const ContactList = () => {
   useEffect(() => {
     axios.get('/api/contacts')
       .then(res => {
-      setContacts(res.data);
-      setIsLoading(false);
-      console.log('useeffect: ', res.data, {updates});
-    })
+        setContacts(res.data);
+        setIsLoading(false);
+      })
       .catch(console.error);
   }, [isLoading]);
-
-  useEffect(() => {
-    if (!listening){
-      const events = new EventSource('http://localhost:3000/api/events');
-
-      events.onmessage = event => {
-        const parsedData = JSON.parse(event.data);
-         console.log({parsedData, contacts});
-        setUpdates(up => up.concat(parsedData));
-      };
-      setListening(true);
-    }
-  },[listening, updates]);
 
   return (
     <div className="layout-container">
@@ -75,12 +51,12 @@ const ContactList = () => {
           <ul>
             {contacts.map((contact) => (
               <li key={contact.email}><Link to={`${contact.id}`} state={contact}>{contact.first_name} {contact.last_name}</Link>
-                <img className={'delete-icon'} onClick={e=> onClick(e,contact.id)} src={deleteIcon} alt='delete icon'/>
+                <img className={'delete-icon'} onClick={e => onClick(e, contact.id)} src={deleteIcon} alt="delete icon"/>
               </li>
             ))}
           </ul>
         }
-        {isLoading && <p>Loading...</p>}
+        {isLoading && <p className={'loading-text'}>Loading...</p>}
       </div>
     </div>
   );

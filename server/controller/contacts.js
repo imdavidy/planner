@@ -18,8 +18,24 @@ const create = async (req, res, next) => {
         }));
       }, 10000))
     })
-    .catch(next);
+    .catch( err =>{
+      return new Error(err.message, {errors: err.errors});
+    });
 
+}
+
+/*!
+* @api {GET} /contact/:id Get Contact Info
+* @apiVersion 0.0.1
+* @apiName getContact
+*
+*/
+const getContact = async (req, res, next) => {
+  Contact.findOne({where: {id: req.params.id}})
+    .then(function (contact) {
+      res.json(contact);
+    })
+    .catch(next);
 }
 
 /*!
@@ -29,7 +45,7 @@ const create = async (req, res, next) => {
 *
 */
 const getList = async (req, res, next) => {
-  Contact.findAll()
+  Contact.findAll({order: [['first_name', 'ASC']]})
     .then(function (contacts) {
       res.json(contacts);
     })
@@ -37,7 +53,7 @@ const getList = async (req, res, next) => {
 }
 
 const getHistory = async (req, res, next) => {
-  EditHistory.findAll({where: {contact_id: req.params.id}})
+  EditHistory.findAll({where: {contact_id: req.params.id}, order: [['createdAt', 'DESC']]})
     .then(function (contacts) {
       res.json(contacts);
     })
@@ -57,8 +73,9 @@ const updateContact = async (req, res, next) => {
         contact: updatedContact
       })
     })
-    .catch(next);
+    .catch(console.error);
 }
+
 
 const deleteContact = async (req, res, next) => {
   Contact.destroy({where: {id: req.params.id}})
@@ -70,6 +87,7 @@ const deleteContact = async (req, res, next) => {
 
 module.exports = {
   create,
+  getContact,
   getList,
   getHistory,
   updateContact,

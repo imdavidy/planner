@@ -4,6 +4,8 @@
  */
 
 const {v4: uuidv4} = require('uuid');
+const controller = require("./index");
+const {Contact} = require("../../db/models");
 
 const eventState = {
   clients: [],
@@ -41,16 +43,39 @@ const sendEventsToAll = (newData) => {
   eventState.clients.forEach(client => client.response.write(`data: ${JSON.stringify(newData)}\n\n`))
 }
 
-const addUpdate = async(request, respsonse, next) => {
-  const newUpdate = request.body;
+const addUpdate = async(req, res, next) => {
+  const newUpdate = req.body;
+  Contact.update(newUpdate, {
+    where: {id: req.params.id},
+    returning: true,
+    individualHooks: true,
+  })
+    .then(results => {
+      const updatedContact = results[1][0];
+      eventState.updates.push(newUpdate);
+      res.json({
+        message: 'Updated contact with id ' + updatedContact.id,
+        contact: updatedContact
+      })
+      return sendEventsToAll(newUpdate);
+    })
+    .catch(next);
+
+  /*
   eventState.updates.push(newUpdate);
-  respsonse.json(newUpdate)
+  res.json(newUpdate)
   return sendEventsToAll(newUpdate);
+  */
+}
+
+const getStatus = (request, respsonse) => {
+  return respsonse.json({clients: eventState.clients.length})
 }
 
 module.exports = {
   addUpdate,
   sendEventsToAll,
   eventsHandler,
+  getStatus,
   eventState,
 }

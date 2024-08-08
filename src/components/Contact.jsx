@@ -11,8 +11,11 @@ import utils from '../../util/utils.mjs'
 const Contact = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [contact, setContact] = useState(location.state);
-  const [curContact, setCurContact] = useState({...contact});
+  const [contact, setContact] = useState({});
+  const [updates, setUpdates] = useState({});
+  const [history, setHistory] = useState([]);
+  const [listening, setListening] = useState(false);
+  const [curContact, setCurContact] = useState({});
   const [isCreate, setIsCreate] = useState(location.pathname === '/contact' );
   const [editing, setEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +55,8 @@ const Contact = () => {
         })
         .catch(err => {
           setIsLoading(false)
-          console.error(err)
+          console.error('error from catch:', err)
+          alert('Something went wrong!', err.message);
         })
         .finally(()=> {
           setIsProcessing(false)
@@ -61,6 +65,10 @@ const Contact = () => {
       axios.put(`/api/contacts/${curContact.id}`, curContact).then(res => {
         if (res.status >= 200 && res.status < 400) {
           setContact(res.data.contact);
+          setCurContact(res.data.contact);
+          if (listening) {
+            setUpdates(res.data.contact);
+          }
           alert('Update successful!');
         }
         setEditing(false)
@@ -69,6 +77,7 @@ const Contact = () => {
       })
         .catch(err => {
           setIsLoading(false)
+          alert('Update failed', err.message);
           console.error(err)
         })
         .finally(()=>{
@@ -89,8 +98,6 @@ const Contact = () => {
       <input type={props.type}
              name={props.name}
              value={props.data[props.name] || ''}
-        // onInput={props.type === 'tel' ? props.onChange : null}
-        // onChange={props.type !== 'tel' ? props.onChange : null}
              maxLength={props.maxLength}
              onChange={props.onChange}
              readOnly={props.readOnly}
@@ -102,15 +109,111 @@ const Contact = () => {
     </div>
   }
 
+/*------------- useEffect -----------------------*/
+
   useEffect(() => {
+
+    axios.get(`/api/contacts/${urlParam}`).then((res) => {
+      setContact(res.data);
+      setCurContact(res.data);
+    })
+
+    // setContact(location.state);
+    // setCurContact(location.state)
+    setIsLoading(false);
+    console.log('location.state: ', location.state)
+    return () => {
+
+      console.log('cleaning!!!!!!!!! ', {
+        contact,
+        updates,
+        listening,
+        curContact,
+        isCreate,
+        editing,
+        isLoading,
+        isProcessing})
+
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log('useEffect[isProcessing]: ', {
+      contact,
+      updates,
+      listening,
+      curContact,
+      isCreate,
+      editing,
+      isLoading,
+      isProcessing})
     if (!isCreate) {
-      axios.get(`/api/contacts/${urlParam}/history`).then(res => {
-        setContact(pre => ({...pre, editHistory: res.data}));
-        setCurContact(pre => ({...pre, editHistory: res.data}));
-        setIsLoading(false);
+      const controller = new AbortController();
+      axios.get(`/api/contacts/${urlParam}/history`, controller.signal).then(res => {
+        setHistory(res.data)
       })
+        .then(()=> {
+          setIsLoading(false);
+        })
+        .catch(console.error);
+      controller.abort()
     }
   }, [isProcessing]);
+
+  useEffect(() => {
+    let events;
+    if (!listening){
+      events = new EventSource('http://localhost:3000/api/events');
+
+      events.onmessage = event => {
+        let recentData;
+        console.log('recieved event: ', event.data); //TODO <--------------------- remove
+        const parsedData = JSON.parse(event.data);
+        if (Array.isArray(parsedData)) recentData = parsedData.pop();
+        if (recentData?.id) {
+          console.log('useEffect.[updates]: ', {updates, contact, curContact, history, recentData})
+          if (recentData.id === history.contact_id) {
+            setHistory(h=> [...h, recentData]);
+            setCurContact({...updates, editHistory: curContact.editHistory});
+          }
+          setIsLoading(false);
+        }
+
+        setUpdates({...recentData});
+      };
+      setListening(true);
+    }
+    //return () => events?.close();
+  },[listening, updates]);
+
+  useEffect(() => {
+    // let recentData;
+    // if (Array.isArray(updates)){
+    //    recentData = updates.pop();
+    // }
+    // if (recentData?.id) {
+    //   console.log('useEffect.[updates]: ', {updates, contact, curContact})
+    //   if (recentData.id === history.contact_id) {
+    //     setHistory(h=> [...h, recentData]);
+    //     setCurContact({...updates, editHistory: curContact.editHistory});
+    //   }
+    //   setIsLoading(false);
+    // }
+    console.log('[updates]useEffect:', {
+      contact,
+      updates,
+      listening,
+      curContact,
+      isCreate,
+      editing,
+      isLoading,
+      isProcessing,
+    history})
+
+  }, [updates]);
+
+  /* ---------------------- end - useEffect-----------------------  */
+
   const inputTypes = [
     {type: 'text', name: 'first_name', label: 'First Name', maxLength: 35, readOnly: !editing && !isCreate, required: true},
     {type: 'text', name: 'last_name', label: 'Last Name', maxLength: 35, readOnly: !editing && !isCreate, required: true},
@@ -145,7 +248,7 @@ const Contact = () => {
           </div>
           <form className={'contact-form-container'} onSubmit={handleSubmit}>
             {
-              inputTypes.map(t => FormInput({
+              !isLoading && inputTypes.map(t => FormInput({
                 data: curContact,
                 type: t.type,
                 name: t.name,
@@ -160,7 +263,7 @@ const Contact = () => {
               {!isCreate && <button type="button" onClick={() => {editing ? cancelEdit() : setEditing(!editing)}}>{editing
                 ? 'Cancel'
                 : 'Edit'}</button>}
-              <button type='submit' className={'elementToFadeInAndOut'} disabled={isProcessing || !editing && !isCreate}><span>{isProcessing
+              <button type='submit' className={isProcessing ? 'button-processing' : null} disabled={isProcessing || !editing && !isCreate}><span>{isProcessing
                 ? '...processing'
                 : 'Save'}</span></button>
             </div>
@@ -171,7 +274,7 @@ const Contact = () => {
           <div className="history-list">
             {isLoading && <p>Loading...</p>}
             {!isLoading && <ol>
-              {curContact?.editHistory?.length ? curContact?.editHistory.map(c => <li key={c.id}>{formatJSONHistory(c.changes)}</li>) : <p>empty history</p>}
+              {history?.length ? history.map(c => <li key={c.id}>{formatJSONHistory(c.changes)}</li>) : <p>empty history</p>}
             </ol>}
           </div>
         </div>}

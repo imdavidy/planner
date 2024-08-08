@@ -68,7 +68,7 @@ button:disabled{
   background-color: rgba(240, 240, 240, 0.85);
 }
 
-button:disabled span{
+.button-processing span{
   -webkit-animation: fadeinout 2s linear forwards infinite;
   animation: fadeinout 2s linear forwards infinite;
   opacity: 1;
@@ -236,11 +236,9 @@ input:read-only{
 }
 
 .layout-container{
-  width:  80vw;
-  align-items: start;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   background-color: rgba(255, 255, 255, 1);
   padding: 50px;
   color: rgb(30, 30, 30, 0.5);
@@ -256,6 +254,10 @@ input:read-only{
   width: 100%;
   padding: 16px 15px 0;
   flex-direction: column-reverse;
+}
+
+.loading-text {
+  min-width: 450px;
 }
 
 .main-body {
