@@ -18,3 +18,8 @@ After having Postgresql installed, please run db-init.sh to create DB for testin
 
 ps. some structures were left inplace for possible future use;
 No testing and documentations was included due to time limitations;
+
+## DB data reset
+- You can clear the DB associated with this app by setting the *force* value to true e.g`{force: true}`.
+- *alter* value is to update the schema models while maintaining the data.
+-- `sequelize.sync({alter: true});`
