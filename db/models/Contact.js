@@ -30,7 +30,6 @@ const Contact = db.define('Contact', {
   {
     hooks: {
       beforeUpdate: async (contact, options) => {
-        console.log('hook:', {contact}, '\n');
         await EditHistory.create({
           contact_id: contact.id,
           changes: JSON.stringify(contact._previousDataValues),

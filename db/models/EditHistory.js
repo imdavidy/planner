@@ -19,10 +19,4 @@ const EditHistory = db.define('EditHistory', {
   new_value: DataTypes.STRING,
 });
 
-// EditHistory.belongsTo(db.models.Contact, {foreignKey: 'id'})
-// Contact.hasMany(EditHistory, {
-//   foreignKey: 'contact_id',
-// })
-console.log({db})
-
 module.exports = EditHistory;

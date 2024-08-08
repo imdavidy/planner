@@ -3,12 +3,6 @@
  * @module controllers/contacts
  */
 
-/*!
-* @api {GET} /contacts Get List of Contacts
-* @apiVersion 0.0.1
-* @apiName getList
-*
-*/
 
 const {Contact, EditHistory} = require('../../db/models/index.js')
 // temp sample data
@@ -24,26 +18,60 @@ const create = async (req, res, next) => {
         }));
       }, 10000))
     })
-    .catch(next);
+    .catch( err =>{
+      return new Error(err.message, {errors: err.errors});
+    });
 
 }
 
+/*!
+* @api {GET} /contact/:id Get Contact Info
+* @apiVersion 0.0.1
+* @apiName getContact
+*
+*/
+const getContact = async (req, res, next) => {
+  Contact.findOne({where: {id: req.params.id}})
+    .then(function (contact) {
+      res.json(contact);
+    })
+    .catch(next);
+}
+
+/*!
+* @api {GET} /contacts Get List of Contacts
+* @apiVersion 0.0.1
+* @apiName getList
+*
+*/
 const getList = async (req, res, next) => {
-  Contact.findAll()
+  Contact.findAll({order: [['first_name', 'ASC']]})
     .then(function (contacts) {
       res.json(contacts);
     })
     .catch(next);
 }
 
+/*!
+* @api {GET} /contacts Get List of Edit History
+* @apiVersion 0.0.1
+* @apiName getHistory
+*
+*/
 const getHistory = async (req, res, next) => {
-  EditHistory.findAll({where: {contact_id: req.params.id}})
+  EditHistory.findAll({where: {contact_id: req.params.id}, order: [['createdAt', 'DESC']]})
     .then(function (contacts) {
       res.json(contacts);
     })
     .catch(next);
 }
 
+/*!
+* @api {put} /contacts Edits given contact and adds to edit history
+* @apiVersion 0.0.1
+* @apiName updateContact
+*
+*/
 const updateContact = async (req, res, next) => {
   Contact.update(req.body, {
     where: {id: req.params.id},
@@ -57,9 +85,15 @@ const updateContact = async (req, res, next) => {
         contact: updatedContact
       })
     })
-    .catch(next);
+    .catch(console.error);
 }
 
+/*!
+* @api {delete} /contacts Delete a given contact
+* @apiVersion 0.0.1
+* @apiName deleteContact
+*
+*/
 const deleteContact = async (req, res, next) => {
   Contact.destroy({where: {id: req.params.id}})
     .then(results=>{
@@ -70,6 +104,7 @@ const deleteContact = async (req, res, next) => {
 
 module.exports = {
   create,
+  getContact,
   getList,
   getHistory,
   updateContact,
