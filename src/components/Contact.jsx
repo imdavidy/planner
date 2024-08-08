@@ -128,37 +128,8 @@ const Contact = () => {
 
     return () => {
       controller?.abort();
-      console.log('cleaning!!!!!!!!! ', {
-        contact,
-        updates,
-        listening,
-        curContact,
-        isCreate,
-        editing,
-        isLoading,
-        isProcessing,
-        history,
-      })
-
     }
   }, []);
-
-  // useEffect(() => {
-  //   let controller;
-  //   if (!isCreate) {
-  //     const controller = new AbortController();
-  //     axios.get(`/api/contacts/${urlParam}/history`, controller.signal).then(res => {
-  //       setHistory(res.data)
-  //     })
-  //       .then(()=> {
-  //         setIsLoading(false);
-  //       })
-  //       .catch(console.error);
-  //   }
-  //   return () => {
-  //     controller?.abort();
-  //   }
-  // }, [isProcessing]);
 
   useEffect(() => {
     let events;
@@ -175,7 +146,7 @@ const Contact = () => {
           if (evData.id === contact.id) {
             setHistory(h => [...h, evData]);
           }
-         // setIsLoading(false);
+         console.log('Event triggered: ', {data: evData})
         }
 
         setUpdates(evData);
@@ -183,23 +154,8 @@ const Contact = () => {
       setListening(true);
     }
 
-    //return () => events?.close();
   },[listening, updates]);
 
-/*  useEffect(() => {
-
-    console.log('[updates]userEffect: ', {updates, history, contact, curContact})
-
-    if (updates?.id) {
-      if (history.length ? updates.id === history[0].contact_id : updates.id === contact.id) {
-        setHistory(h=> [...h, updates]);
-      }
-      setIsLoading(false);
-    }
-
-  }, [updates]);
-  /
- */
 
   /* ---------------------- end - useEffect-----------------------  */
 

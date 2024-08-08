@@ -5,7 +5,9 @@ const router = Router();
 
 router.get('/contacts', controller.contacts.getList)
 router.post('/contact', controller.contacts.create)
-// router.put('/contacts/:id', controller.contacts.updateContact)
+/* non-event API for updating contact
+router.put('/contacts/:id', controller.contacts.updateContact)
+*/
 router.put('/contacts/:id', controller.events.addUpdate)
 router.get('/contacts/:id', controller.contacts.getContact)
 router.delete('/contacts/:id', controller.contacts.deleteContact)

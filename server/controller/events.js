@@ -42,7 +42,12 @@ const eventsHandler = (request, response, next) => {
 const sendEventsToAll = (newData) => {
   eventState.clients.forEach(client => client.response.write(`data: ${JSON.stringify(newData)}\n\n`))
 }
-
+/*!
+* @api {PUT} /contact/:id Updates contact info with real time events
+* @apiVersion 0.0.1
+* @apiName addUpdate
+*
+*/
 const addUpdate = async(req, res, next) => {
   const newUpdate = req.body;
   Contact.update(newUpdate, {
@@ -61,13 +66,13 @@ const addUpdate = async(req, res, next) => {
     })
     .catch(next);
 
-  /*
-  eventState.updates.push(newUpdate);
-  res.json(newUpdate)
-  return sendEventsToAll(newUpdate);
-  */
 }
-
+/*!
+* @api {GET} /events Gets event status
+* @apiVersion 0.0.1
+* @apiName addUpdate
+*
+*/
 const getStatus = (request, respsonse) => {
   return respsonse.json({clients: eventState.clients.length})
 }

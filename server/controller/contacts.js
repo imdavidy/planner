@@ -52,6 +52,12 @@ const getList = async (req, res, next) => {
     .catch(next);
 }
 
+/*!
+* @api {GET} /contacts Get List of Edit History
+* @apiVersion 0.0.1
+* @apiName getHistory
+*
+*/
 const getHistory = async (req, res, next) => {
   EditHistory.findAll({where: {contact_id: req.params.id}, order: [['createdAt', 'DESC']]})
     .then(function (contacts) {
@@ -60,6 +66,12 @@ const getHistory = async (req, res, next) => {
     .catch(next);
 }
 
+/*!
+* @api {put} /contacts Edits given contact and adds to edit history
+* @apiVersion 0.0.1
+* @apiName updateContact
+*
+*/
 const updateContact = async (req, res, next) => {
   Contact.update(req.body, {
     where: {id: req.params.id},
@@ -76,7 +88,12 @@ const updateContact = async (req, res, next) => {
     .catch(console.error);
 }
 
-
+/*!
+* @api {delete} /contacts Delete a given contact
+* @apiVersion 0.0.1
+* @apiName deleteContact
+*
+*/
 const deleteContact = async (req, res, next) => {
   Contact.destroy({where: {id: req.params.id}})
     .then(results=>{
