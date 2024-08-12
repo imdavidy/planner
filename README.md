@@ -14,6 +14,7 @@ It also receives events for any update on contact being updated while on the sam
 After having Postgresql installed, please run db-init.sh to create DB for testing.
 - run `npm i` for modules.
 - run `npm run build && npm run dev` for client side app.
+- run `bash db-init.sh` to create database if not exist.
 - run `node server/index.js` for db and backend.
 
 ps. some structures were left inplace for possible future use;
@@ -21,5 +22,6 @@ No testing and documentations was included due to time limitations;
 
 ## DB data reset
 - You can clear the DB associated with this app by setting the *force* value to true e.g`{force: true}`.
+- This can be set on `db/database.js` file;
 - *alter* value is to update the schema models while maintaining the data.
 -- `sequelize.sync({alter: true});`
