@@ -4,9 +4,10 @@
  *
  */
 import {useLocation, useNavigate} from 'react-router-dom';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import utils from '../../util/utils.mjs'
+import History from "./History";
 
 const Contact = () => {
   const location = useLocation();
@@ -66,10 +67,10 @@ const Contact = () => {
         if (res.status >= 200 && res.status < 400) {
           setContact(res.data.contact);
           setCurContact(res.data.contact);
-          if (listening) {
-            setUpdates(res.data.contact);
-          }
-          alert('Update successful!');
+          // if (listening) {
+          //   setUpdates(res.data.contact);
+          // }
+          // alert('Update successful!');
         }
         setEditing(false)
         setIsProcessing(false)
@@ -111,50 +112,51 @@ const Contact = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    axios.get(`/api/contacts/${urlParam}`, controller.signal).then((res) => {
-      setContact(res.data);
-      setCurContact(res.data);
-    }).then( () => {
-      if (!isCreate) {
+    if (!isCreate) {
+      axios.get(`/api/contacts/${urlParam}`, controller.signal).then((res) => {
+        setContact(res.data);
+        setCurContact(res.data);
+      }).then(() => {
+
         axios.get(`/api/contacts/${urlParam}/history`, controller.signal).then(res => {
           setHistory(res.data)
         })
-      }
-    }).then(()=> {
-      setIsLoading(false);
-    })
-      .catch(console.error);
+
+      }).then(() => {
+        setIsLoading(false);
+      })
+        .catch(console.error);
+    }
 
 
     return () => {
       controller?.abort();
     }
-  }, []);
+  }, [isCreate, urlParam]);
 
-  useEffect(() => {
-    let events;
+  /*useEffect(() => {
     if (!listening){
-      events = new EventSource('http://localhost:3000/api/events');
+      const events = new EventSource('http://localhost:3000/api/events');
 
       events.onmessage = event => {
-        let evData;
         const parsedData = JSON.parse(event.data);
-        if (Array.isArray(parsedData)) evData = parsedData.pop();
-        if (evData?.id) {
+        // console.log('message event fired: ', parsedData); // <---- TODO remove
+
+        const evData = Array.isArray(parsedData) ? parsedData.pop() : parsedData;
           setUpdates(evData);
 
-          if (evData.id === contact.id) {
-            setHistory(h => [...h, evData]);
+          if (evData?.id === contact?.id) {
+            setHistory(h => h.concat(evData));
           }
          console.log('Event triggered: ', {data: evData})
-        }
+
 
         setUpdates(evData);
       };
       setListening(true);
     }
 
-  },[listening, updates]);
+  },[contact.id, listening, updates]);*/
 
 
   /* ---------------------- end - useEffect-----------------------  */
@@ -166,7 +168,7 @@ const Contact = () => {
     {type: 'tel', name: 'phone', label: 'Phone', maxLength: 10, readOnly: !editing && !isCreate, required: true},
   ]
 
-  const formatJSONHistory = (his) => {
+  /*const formatJSONHistory = (his = []) => {
     const history = JSON.parse(his)
     const keyVals = [];
     const targetProps = ['first_name', 'last_name', 'phone', 'email', 'updatedAt'];
@@ -182,8 +184,8 @@ const Contact = () => {
       }
     }
     return keyVals.join('; ');
-  }
-
+  }*/
+console.log('contact comp:',{history})
   return (
     <>
       <div className='layout-container'>
@@ -193,7 +195,7 @@ const Contact = () => {
           </div>
           <form className={'contact-form-container'} onSubmit={handleSubmit}>
             {
-              !isLoading && inputTypes.map(t => FormInput({
+              (isCreate || !isLoading) && inputTypes.map(t => FormInput({
                 data: curContact,
                 type: t.type,
                 name: t.name,
@@ -208,21 +210,15 @@ const Contact = () => {
               {!isCreate && <button type="button" onClick={() => {editing ? cancelEdit() : setEditing(!editing)}}>{editing
                 ? 'Cancel'
                 : 'Edit'}</button>}
-              <button type='submit' className={isProcessing ? 'button-processing' : null} disabled={isProcessing || !editing && !isCreate}><span>{isProcessing
+              <button type='submit'
+                      className={isProcessing ? 'button-processing' : null}
+                      disabled={isProcessing || !editing && !isCreate}><span>{isProcessing
                 ? '...processing'
                 : 'Save'}</span></button>
             </div>
           </form>
         </div>
-        {!isCreate && <div className="contact-history">
-          <h5>Edit History</h5>
-          <div className="history-list">
-            {isLoading && <p>Loading...</p>}
-            {!isLoading && <ol>
-              {history?.length ? history.map(c => <li key={c.id}>{formatJSONHistory(c?.changes)}</li>) : <p>empty history</p>}
-            </ol>}
-          </div>
-        </div>}
+        {!isCreate && !isLoading && <History data={history}/>}
       </div>
     </>
   )
